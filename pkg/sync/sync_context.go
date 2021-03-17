@@ -563,8 +563,12 @@ func (sc *syncContext) getSyncTasks() (_ syncTasks, successful bool) {
 
 		if sc.applyOutOfSyncOnly {
 			if modified, ok := sc.modificationResult[k]; !modified && ok {
-				sc.log.WithValues("resource key", k).V(1).Info("Skipping as resource was not modified")
-				continue
+				if sc.prune && resource.Target == nil {
+					// don't skip this resource as we might want to prune this object
+				} else {
+					sc.log.WithValues("resource key", k).V(1).Info("Skipping as resource was not modified")
+					continue
+				}
 			}
 		}
 
